@@ -4,7 +4,7 @@ A small internal to-do list: one shared list, no sign-in.
 
 - **Framework:** Next.js 16 (App Router, Server Actions)
 - **Database:** Supabase, table `public.todos`
-- **Hosting:** Vercel, deploys automatically on every push to `main`
+- **Hosting:** Vercel project `todolist-app` (team OCTOBEES)
 
 ## Run locally
 
@@ -25,6 +25,15 @@ create table public.todos (
   done boolean not null default false,
   created_at timestamptz not null default now()
 );
+
+alter table public.todos enable row level security;
+create policy "anon can read todos" on public.todos for select to anon using (true);
+create policy "anon can add todos" on public.todos for insert to anon with check (true);
+create policy "anon can update todos" on public.todos for update to anon using (true) with check (true);
+create policy "anon can delete todos" on public.todos for delete to anon using (true);
+
+grant select, insert, update, delete on table public.todos to anon;
+grant usage, select on sequence public.todos_id_seq to anon;
 ```
 
 Row Level Security is on, with policies that let the `anon` role read and change rows, since the app has no sign-in.
